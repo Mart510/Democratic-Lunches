@@ -1,9 +1,8 @@
 // import block
 
+
 // baseURL localhost for now can be changed later (dev or live switch for env ready)
 const baseURL = 'http://localhost:3000';
-
-// API funcs block
 
 // GET all poll options
 async function pollOptions() {
@@ -20,8 +19,68 @@ async function pollOptions() {
         }
 };
 
+// Vote handler
+async function voteHandler(e) {
+    // stop page from reloading on submit
+    e.preventDefault();
 
-// DOM manipulation block
+    // access the form
+    const form = e.target;
+
+    // get which radio is checked
+    const choiceHTMLElement = form.querySelector('input[name="choice"]:checked')
+
+    // Vote for selected element
+    if (choiceHTMLElement) {
+        // get the value of selector
+        const choice = choiceHTMLElement.value;
+        // console.log(`You are trying to vote for: ${choice}`) // debug logger
+
+        // POST result to database
+        try {
+            const payload = await fetch(`${baseURL}/vote`,  {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({choice: choice})
+            });
+
+            // Check the server response
+            if (!payload.ok) {
+                console.error('Response Error');
+            };
+
+            // Log response from server
+            const serverResponse = await payload.json();
+            console.log(serverResponse.message)
+        } catch (error) {
+            console.error(`Failed to POST your vote`, error);
+        };
+    } else {
+        console.log('No choice made');
+    }
+}
+
+// get results handler
+async function getResultsHandler(e) {
+    console.log('fetching latest results') // debug logger
+
+    // fetch request
+    const currentResults = await pollOptions();
+
+    // update each vote count on the DOM
+    for (let i = 0; i < currentResults.length; i++) {
+        // get the element about to be changed
+        let resultID = `ResultsForOption${i+1}`;
+        // find it in the tabe
+        let resultToChange = document.getElementById(resultID);
+        // update it
+        resultToChange.textContent = `${currentResults[i].voteCount}`;
+    };
+};
+
+
 
 // build table in form to show the choices and results
 function lunchOptiosnTableConstructor(optionsList) {
@@ -93,4 +152,9 @@ window.onload = async function() {
 
     //  create table and fill it
     lunchOptiosnTableConstructor(todaysOptions);
+
+    // add functions to the buttons
+    document.getElementById("lunchForm").addEventListener('submit', voteHandler);
+    document.getElementById('getResultsButton').addEventListener('click', getResultsHandler);
+
 }

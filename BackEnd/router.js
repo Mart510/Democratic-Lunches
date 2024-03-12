@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 // import API funcs block
 import { getPollOptions } from './GET/getOptions.js';
+import { postNewVote } from './POST/postNewVote.js';
 
 // using express router for ease of scalilbility. If this stays small this extra boilerplate will have been overkill
 
@@ -16,7 +17,7 @@ router.use(cors());
 router.get('/options', getPollOptions);
 
 // Post a vote
-// router.post('/vote', postMyVote);
+router.post('/vote', postNewVote);
 
 // GET realtime results
 router.get('/results', getPollOptions);

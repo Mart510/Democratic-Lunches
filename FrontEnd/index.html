@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Title for tabe -->
+    <title>Lunch Poll</title>
+    <!-- CSS link -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Lunch Poll</h1>
+    <h2>What should the team get for lunch today?</h2>
+    <form id="lunchForm">
+        <div id="voteAndResultsHolder">
+        <!-- Table with vote options and current results gets injected here -->
+        </div>
+        <div id="buttonHolder">
+            <!-- submit button -->
+            <button type="submit" value="submit" id="voteButton">Vote</button>
+            <!-- refresh results button -->
+            <button type="button" id="getResultsButton">Get results</button>
+            <!-- Websocket vote button -->
+            <button type="button" id="socketVoteButton">Vote with Websocket</button>
+        </div>
+    </form>
+    <!-- JS file link -->
+    <script src="scripts.js"></script>
+</body>
+</html>

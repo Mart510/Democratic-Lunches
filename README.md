@@ -3,6 +3,8 @@
 
 A basic polling application use REST and webhooks to allow a team to decide on what to get for lunch together.
 
+![lunchPoll](https://github.com/Mart510/Democratic-Lunches/assets/62957166/36b3c322-d781-43ab-a58a-fb6e6c7587ea)
+
 ## Run Locally
 
 Clone the project

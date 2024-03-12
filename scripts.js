@@ -62,6 +62,7 @@ async function voteHandler(e) {
     }
 }
 
+
 // get results handler
 async function getResultsHandler(e) {
     console.log('fetching latest results') // debug logger
@@ -80,6 +81,98 @@ async function getResultsHandler(e) {
     };
 };
 
+// websocket deinfed here so it can be used in any function
+let ws = null;
+
+// Websocket client set up
+function connectWebSocket() {
+    // init ONLY IF websocket is not open
+    if (!ws || ws.readState === WebSocket.CLOSED) {
+
+        ws = new WebSocket('ws://localhost:8080');
+        ws.onopen = () => {
+            console.log('New websocket connetion established');
+            // Listener for incoming messages
+            webSocketLiveUpdateListener();
+        }
+    };
+
+    // on error log message
+    ws.onerror = (error) => {
+        console.log(`WebSocket connection error`, error);
+    };
+
+    // on unclean close retry
+    ws.onclose = (event) => {
+        if (!event.wasClean) {
+            console.log('Socket closed unexpectedly, retrying in 3 seconds');
+            setTimeout(connectWebSocket, 3000);
+        }
+    }
+};
+
+// Websocket send vote
+async function webSocketVoteButtonHandler(e) {
+    // stop page from reloading
+    e.preventDefault();
+
+    // access the form
+    const form = document.getElementById("lunchForm");
+
+    // check if the socket is ready
+    if (ws.readyState !== WebSocket.OPEN) {
+        console.log(`WebSocket is not open. Current State`, ws.readyState);
+        return;
+    }
+
+    // get which radio is checked
+    const choiceHTMLElement = form.querySelector('input[name="choice"]:checked')
+
+    // vote for the current choice
+    if (choiceHTMLElement) {
+        // get the value of the current choice
+        const choice = choiceHTMLElement.value;
+        // convert choice into JSON
+        const messageJSON = JSON.stringify(choice);
+        // send message to websocket
+        ws.send(messageJSON);
+        // log to console
+        console.log(`Vote for ${choice} sent to server`);
+    } else {
+        console.log('no choice made');
+    }
+
+};
+
+// websocket recieve updated vote mesage
+async function webSocketLiveUpdateListener() {
+    ws.onmessage = (e) => {
+        try {
+            // parse the buffer into a JSON
+            const data = JSON.parse(e.data);
+            console.log(`Live update recived for: ${data.choice}, new total: ${data.voteCount}`)
+            // find ID of the input tag
+            let inputID = null;
+            document.querySelectorAll('input[name="choice"]').forEach((input) => {
+                if (input.value === data.choice) {
+                    inputID = input.id;
+                };
+            });
+            console.log(inputID)// debug logger
+            // grab the right table cell and update the score
+            if (inputID) {
+                const resultID = `ResultsFor${inputID}`;
+                console.log(resultID)
+                let resultToUpdate = document.getElementById(resultID);
+                if (resultToUpdate) {
+                    resultToUpdate.textContent = data.voteCount;
+                }
+            }
+        } catch (error) {
+            // silently ignore anything that is not a valid JSON
+        }
+    }
+};
 
 
 // build table in form to show the choices and results
@@ -115,7 +208,7 @@ function lunchOptiosnTableConstructor(optionsList) {
         // add choice radio button
             let radioButton = document.createElement('input');
             radioButton.setAttribute('type', 'radio');
-            radioButton.setAttribute('id', `Options${i+1}`);
+            radioButton.setAttribute('id', `Option${i+1}`);
             radioButton.setAttribute('name', 'choice');
             radioButton.setAttribute('value', optionsList[i].choice);
         // label radio button
@@ -156,5 +249,8 @@ window.onload = async function() {
     // add functions to the buttons
     document.getElementById("lunchForm").addEventListener('submit', voteHandler);
     document.getElementById('getResultsButton').addEventListener('click', getResultsHandler);
+    document.getElementById('socketVoteButton').addEventListener('click', webSocketVoteButtonHandler);
 
+    // connect websocket
+    connectWebSocket();
 }

@@ -42,3 +42,4 @@ With the server running on your local machine you can navigate to a browser wind
 
 This was a timed challenge so the code has room for improvements. Before I started coding I created a diagram to help me understand how this project should be structured. If you have any questions please feel free to ping me on GitHub.
 
+![democraticLunchesDiagram](https://github.com/Mart510/Democratic-Lunches/assets/62957166/718366c3-9e1a-4288-8cc8-e50a26a73e42)

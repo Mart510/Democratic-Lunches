@@ -25,7 +25,7 @@ Start the server (rapid build only supports dev mode at the moment)
   npm run dev
 ```
 
-With the server running on your local machine you can navigate to a browser window to see the front end for example
+With the server running on your local machine you can use live server to or navigate to a browser window to see the front end for example
 
 ```bash
   http://127.0.0.1:5501/
